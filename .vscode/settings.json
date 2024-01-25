@@ -1,0 +1,6 @@
+{
+  "C_Cpp.intelliSenseEngine": "default",
+  "idf.flashType": "UART",
+  "idf.port": "/dev/cu.usbserial-0001",
+  "idf.adapterTargetName": "esp32"
+}
