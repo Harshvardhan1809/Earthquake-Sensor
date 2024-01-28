@@ -339,14 +339,6 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# I2Cbus
-#
-CONFIG_I2CBUS_LOG_ERRORS=y
-# CONFIG_I2CBUS_LOG_READWRITES is not set
-# end of I2Cbus
-
-########################################################################## added
-#
 # Example Connection Configuration
 #
 CONFIG_ENV_GPIO_RANGE_MIN=0
@@ -356,8 +348,8 @@ CONFIG_ENV_GPIO_OUT_RANGE_MAX=33
 CONFIG_EXAMPLE_CONNECT_WIFI=y
 # CONFIG_EXAMPLE_WIFI_SSID_PWD_FROM_STDIN is not set
 CONFIG_EXAMPLE_PROVIDE_WIFI_CONSOLE_CMD=y
-CONFIG_EXAMPLE_WIFI_SSID="TP-Link_3761" #"ICT_EX5_2G"
-CONFIG_EXAMPLE_WIFI_PASSWORD="Flat@201@password" #"embedded"
+CONFIG_EXAMPLE_WIFI_SSID="TP-Link_3761"
+CONFIG_EXAMPLE_WIFI_PASSWORD="Flat@201@password"
 CONFIG_EXAMPLE_WIFI_CONN_MAX_RETRY=6
 # CONFIG_EXAMPLE_WIFI_SCAN_METHOD_FAST is not set
 CONFIG_EXAMPLE_WIFI_SCAN_METHOD_ALL_CHANNEL=y
@@ -387,7 +379,13 @@ CONFIG_EXAMPLE_CONNECT_IPV6_PREF_LOCAL_LINK=y
 # CONFIG_EXAMPLE_CONNECT_IPV6_PREF_SITE_LOCAL is not set
 # CONFIG_EXAMPLE_CONNECT_IPV6_PREF_UNIQUE_LOCAL is not set
 # end of Example Connection Configuration
-########################################################################## added
+
+#
+# I2Cbus
+#
+CONFIG_I2CBUS_LOG_ERRORS=y
+# CONFIG_I2CBUS_LOG_READWRITES is not set
+# end of I2Cbus
 
 #
 # MPU driver

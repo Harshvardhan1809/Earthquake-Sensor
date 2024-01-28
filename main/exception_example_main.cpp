@@ -26,7 +26,6 @@
 #include "mpu/types.hpp"
 #include "sdkconfig.h"
 
-
 // For communication
 #include "esp_system.h"
 #include "esp_wifi.h"
@@ -46,7 +45,6 @@
 #include <esp_adc/adc_oneshot.h>
 // For communication
 
-
 // For sensor
 static const char *TAG = "example";
 static constexpr int MOSI = 26;
@@ -54,18 +52,19 @@ static constexpr int MISO = 25;
 static constexpr int SCLK = 27;
 static constexpr int CS = 33;
 static constexpr uint32_t CLOCK_SPEED = 100000; // up to 1MHz for all registers, and 20MHz for sensor data registers only
+static int freertos_flag = 0;
 // CHANGED TO 0.1 MHZ
 // For sensor
 
-
 // For communication
-#define WEB_SERVER "127.0.0.1" //	<- Use the ip address of your Raspberry pi here.
+#define WEB_SERVER "192.168.2.167" //	<- Use the ip address of your Raspberry pi here.
 #define WEB_PORT "50000"
-#define WEB_PATH "/id="
+#define WEB_PATH "/ID="
 #define CONTINUED_WEB_PATH "&TIME="
 
 static adc_oneshot_unit_handle_t adc1_handle;
-extern "C" void http_get_task(void *pvParameters)
+// static void http_get_task(void *pvParameters)
+extern "C" void http_get_task()
 {
     const struct addrinfo hints = {
         .ai_family = AF_INET,
@@ -84,12 +83,13 @@ extern "C" void http_get_task(void *pvParameters)
         {
             ESP_LOGE(TAG, "DNS lookup failed err=%d res=%p", err, res);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
+            // break;
             continue;
         }
 
         /* Code to print the resolved IP.
 
-           Note: inet_ntoa is non-reentrant, look at ipaddr_ntoa_r for "real" code */
+        Note: inet_ntoa is non-reentrant, look at ipaddr_ntoa_r for "real" code */
         addr = &((struct sockaddr_in *)res->ai_addr)->sin_addr;
         ESP_LOGI(TAG, "DNS lookup succeeded. IP=%s", inet_ntoa(*addr));
 
@@ -99,7 +99,8 @@ extern "C" void http_get_task(void *pvParameters)
             ESP_LOGE(TAG, "... Failed to allocate socket.");
             freeaddrinfo(res);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
-            continue;
+            break;
+            // continue;
         }
         ESP_LOGI(TAG, "... allocated socket");
 
@@ -127,7 +128,7 @@ extern "C" void http_get_task(void *pvParameters)
                                   "User-Agent: esp-idf/1.0 esp32\r\n\r\n";
         static char REQUEST[100];
         int value = 0;
-        adc_oneshot_read(adc1_handle, ADC_CHANNEL_6, &value);
+        // adc_oneshot_read(adc1_handle, ADC_CHANNEL_6, &value);
         strcpy(REQUEST, REQ1);
         sprintf(REQUEST + strlen(REQUEST), "%d", value);
         strcat(REQUEST, CONTINUED_WEB_PATH);
@@ -154,6 +155,7 @@ extern "C" void http_get_task(void *pvParameters)
             vTaskDelay(4000 / portTICK_PERIOD_MS);
             continue;
         }
+
         ESP_LOGI(TAG, "... set socket receiving timeout success");
 
         /* Read HTTP response */
@@ -179,7 +181,6 @@ extern "C" void http_get_task(void *pvParameters)
 }
 // For communication
 
-
 // For sensor
 extern "C" void app_main()
 {
@@ -204,9 +205,8 @@ extern "C" void app_main()
      * Read "Establishing Wi-Fi or Ethernet Connection" section in
      * examples/protocols/README.md for more information about this function.
      */
-    ESP_ERROR_CHECK(example_connect());
+    // ESP_ERROR_CHECK(example_connect());
 
-    xTaskCreate(&http_get_task, "http_get_task", 4096, NULL, 5, NULL);
     // For communication
 
     printf("$ MPU Driver Example: MPU-SPI\n");
@@ -270,6 +270,9 @@ extern "C" void app_main()
     mpud::raw_axes_t gyroRaw;   // x, y, z axes as int16
     mpud::float_axes_t accelG;  // accel axes in (g) gravity format
     mpud::float_axes_t gyroDPS; // gyro axes in (DPS) º/s format
+
+    // xTaskCreate(&http_get_task, "http_get_task", 4096, NULL, 5, NULL);
+
     while (true)
     {
         // Read
@@ -282,7 +285,8 @@ extern "C" void app_main()
         // Debug
         printf("accel: [%+6.2f %+6.2f %+6.2f ] (G) \t", accelG.x, accelG.y, accelG.z);
         printf("gyro: [%+7.2f %+7.2f %+7.2f ] (º/s)\n", gyroDPS[0], gyroDPS[1], gyroDPS[2]);
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        http_get_task();
+        vTaskDelay(5000 / portTICK_PERIOD_MS); // 5 seconds delay
     }
 }
 // For sensor
